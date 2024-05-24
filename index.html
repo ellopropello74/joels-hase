@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hase Springt</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #072986;
+        }
+        #gameCanvas {
+            border: 1px solid #fff;
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <img id="rabbitImg" src="C:\Users\Admin\Desktop\Joel\Jöl\Hasi\hare.png" style="display: none;" />
+    <img id="carrotImg" src="C:\Users\Admin\Desktop\Joel\Jöl\Hasi\carrot.png" style="display: none;" />
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let hasStarted = false;
+        let gameOver = false;
+        let score = 0;
+        const startTime = Date.now();
+
+        const rabbitImg = document.getElementById('rabbitImg');
+        const carrotImg = document.getElementById('carrotImg');
+
+        const rabbit = {
+            x: 50,
+            y: 300,
+            width: 50,
+            height: 50,
+            dy: 0,
+            gravity: 0.6,
+            jumpStrength: -10,
+            draw() {
+                ctx.drawImage(rabbitImg, this.x, this.y, this.width, this.height);
+            },
+            jump() {
+                this.dy = this.jumpStrength;
+            },
+            update() {
+                this.dy += this.gravity;
+                this.y += this.dy;
+
+                if (this.y + this.height > canvas.height) {
+                    this.y = canvas.height - this.height;
+                    this.dy = 0;
+                }
+            }
+        };
+
+        const carrot = {
+            x: canvas.width,
+            y: canvas.height - 50 - Math.random() * 50,
+            width: 30,
+            height: 30,
+            speed: 5,
+            draw() {
+                ctx.drawImage(carrotImg, this.x, this.y, this.width, this.height);
+            },
+            update() {
+                this.x -= this.speed;
+                if (this.x + this.width < 0) {
+                    this.x = canvas.width;
+                    this.y = canvas.height - 50 - Math.random() * 50;
+                    score++;
+                }
+            }
+        };
+
+        function increaseSpeed() {
+            const currentTime = Date.now();
+            const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+            carrot.speed = 5 + 0.25 * elapsedSeconds;
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawScore() {
+            ctx.fillStyle = '#fff';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Score: ${score}`, 10, 30);
+        }
+
+        function detectCollision() {
+            if (
+                rabbit.x < carrot.x + carrot.width &&
+                rabbit.x + rabbit.width > carrot.x &&
+                rabbit.y < carrot.y + carrot.height &&
+                rabbit.y + rabbit.height > carrot.y
+            ) {
+                gameOver = true;
+            }
+        }
+
+        function gameLoop() {
+            if (gameOver) {
+                ctx.fillStyle = '#fff';
+                ctx.font = '40px Arial';
+                ctx.fillText('Game Over', canvas.width / 2 - 100, canvas.height / 2);
+                ctx.fillText(`Score: ${score}`, canvas.width / 2 - 50, canvas.height / 2 + 50);
+                return;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            rabbit.draw();
+            carrot.draw();
+            drawScore();
+            rabbit.update();
+            carrot.update();
+            detectCollision();
+            increaseSpeed();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Touchscreen-Event hinzufügen
+        canvas.addEventListener('touchstart', () => {
+            if (!hasStarted) {
+                hasStarted = true;
+                gameLoop();
+            }
+            rabbit.jump();
+        });
+    </script>
+</body>
+</html>
