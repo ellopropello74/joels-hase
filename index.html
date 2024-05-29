@@ -1,88 +1,141 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hase Springt</title>
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #072986;
-        }
-        #gameCanvas {
-            border: 1px solid #fff;
-            background-color: #000000;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hase Springt</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #072986;
+    }
+    #gameCanvas {
+      border: 1px solid #fff;
+      background-color: #000000;
+    }
+    #restartButton {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #fff;
+      border: none;
+      border-radius: 5px;
+      display: none; /* Initially hide the restart button */
+    }
+  </style>
 </head>
 <body>
-    <img id="rabbitImg" src="hare.png" style="display: none;" />
-    <img id="carrotImg" src="carrot.png" style="display: none;" />
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+  <img id="rabbitImg" src="hare.png" style="display: none;" />
+  <img id="carrotImg" src="carrot.png" style="display: none;" />
+  <canvas id="gameCanvas" width="800" height="400"></canvas>
+  <button id="restartButton">Neustart</button>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-        let hasStarted = false;
-        let gameOver = false;
-        let score = 0;
-        const startTime = Date.now();
+    let hasStarted = false;
+    let gameOver = false;
+    let score = 0;
+    let highScore = localStorage.getItem('highScore') || 0; // Highscore aus dem lokalen Speicher laden
+    const startTime = Date.now();
 
-        const rabbitImg = document.getElementById('rabbitImg');
-        const carrotImg = document.getElementById('carrotImg');
+    const rabbitImg = document.getElementById('rabbitImg');
+    const carrotImg = document.getElementById('carrotImg');
 
-        const rabbit = {
-            x: 50,
-            y: 300,
-            width: 50,
-            height: 50,
-            dy: 0,
-            gravity: 0.6,
-            jumpStrength: -10,
-            draw() {
-                ctx.drawImage(rabbitImg, this.x, this.y, this.width, this.height);
-            },
-            jump() {
-                this.dy = this.jumpStrength;
-            },
-            update() {
-                this.dy += this.gravity;
-                this.y += this.dy;
+    const rabbit = {
+      x: 50, // Initial position at 50px (changed for restart)
+      y: canvas.height - 50, // Starting at the bottom
+      width: 50,
+      height: 50,
+      dy: 0,
+      gravity: 0.55,
+      jumpStrength: -15,
+      maxJumpHeight: canvas.height * 0.2, // Max jump height relative to canvas height
+      jumps: 0, // Track number of jumps
+      maxJumps: 2, // Allow double jumps
+      speed: 3, // Geschwindigkeit des Hasen in Pixel pro Zeitschritt
+      draw() {
+        ctx.drawImage(rabbitImg, this.x, this.y, this.width, this.height);
+      },
+      jump() {
+        if (this.jumps < this.maxJumps) { // Allow jump if max jumps not reached
+          this.dy = this.jumpStrength;
+          this.jumps++;
+        }
+      },
+      update() {
+        this.dy += this.gravity;
+        this.y += this.dy;
 
-                if (this.y + this.height > canvas.height) {
-                    this.y = canvas.height - this.height;
-                    this.dy = 0;
-                }
-            }
-        };
+        if (this.y + this.height > canvas.height) {
+          this.y = canvas.height - this.height;
+          this.dy = 0;
+          this.jumps = 0; // Reset jumps when rabbit lands
+        }
+
+        if (this.y < this.maxJumpHeight) {
+          this.y = this.maxJumpHeight;
+          this.dy = 0;
+        }
+
+        // Berechnung der zurückgelegten Distanz und Hinzufügen zum Score
+        const distanceTraveled = this.speed / 90; // Umrechnung von Pixel pro Frame in Meter pro Zeitschritt
+        score += distanceTraveled;
+
+        // Highscore aktualisieren, wenn ein neuer Rekord aufgestellt wurde
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem('highScore', highScore); // Highscore im lokalen Speicher speichern
+        }
+      }
+    };
+        const carrotPositions = [
+            60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200
+        ];
+
+        let currentCarrotIndex = 0; // Index to keep track of current carrot position
+        let nextCarrotX = canvas.width; // Next carrot's X position
 
         const carrot = {
-            x: canvas.width,
-            y: canvas.height - 50 - Math.random() * 50,
-            width: 30,
-            height: 30,
+            x: nextCarrotX,
+            y: getRandomCarrotPosition(),
+            width: 100, // Increased width
+            height: 100, // Increased height
             speed: 5,
             draw() {
                 ctx.drawImage(carrotImg, this.x, this.y, this.width, this.height);
             },
             update() {
-                this.x -= this.speed;
-                if (this.x + this.width < 0) {
-                    this.x = canvas.width;
-                    this.y = canvas.height - 50 - Math.random() * 50;
-                    score++;
+                if (!gameOver) { // Only update if game is not over
+                    this.x -= this.speed;
+                    if (this.x + this.width < 0) {
+                        currentCarrotIndex++;
+                        if (currentCarrotIndex >= carrotPositions.length) {
+                            currentCarrotIndex = 0; // Reset to the beginning if reached the end
+                        }
+                        this.x = canvas.width;
+                        this.y = getRandomCarrotPosition();
+                    }
                 }
             }
         };
 
+        function getRandomCarrotPosition() {
+            return canvas.height - carrotPositions[currentCarrotIndex];
+        }
+
         function increaseSpeed() {
             const currentTime = Date.now();
-            const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
-            carrot.speed = 5 + 0.25 * elapsedSeconds;
+            const elapsedSeconds = (currentTime - startTime) / 1000;
+            rabbit.speed = 3 + elapsedSeconds * 0.1; // Beschleunigung des Hasen über die Zeit
         }
 
         function drawBackground() {
@@ -93,18 +146,46 @@
         function drawScore() {
             ctx.fillStyle = '#fff';
             ctx.font = '20px Arial';
-            ctx.fillText(`Score: ${score}`, 10, 30);
+            ctx.fillText(`Score: ${Math.round(score)}m`, 10, 30); // Score in Metern anzeigen
+            ctx.fillText(`Highscore: ${Math.round(highScore)}m`, canvas.width - 150, 30); // Highscore anzeigen
         }
 
         function detectCollision() {
+            const collisionBoxWidth = carrot.width / 2;
+            const collisionBoxHeight = carrot.height / 2;
+            const collisionBoxX = carrot.x + (carrot.width - collisionBoxWidth) / 2; // Adjusted X position
+            const collisionBoxY = carrot.y + (carrot.height - collisionBoxHeight) / 2; // Adjusted Y position
             if (
-                rabbit.x < carrot.x + carrot.width &&
-                rabbit.x + rabbit.width > carrot.x &&
-                rabbit.y < carrot.y + carrot.height &&
-                rabbit.y + rabbit.height > carrot.y
-            ) {
-                gameOver = true;
+            rabbit.x < collisionBoxX + collisionBoxWidth &&
+            rabbit.x + rabbit.width > collisionBoxX &&
+            rabbit.y < collisionBoxY + collisionBoxHeight &&
+            rabbit.y + rabbit.height > collisionBoxY
+        ) {
+            gameOver = true;
+            showRestartButton(); // Show the restart button when game over
+        }
+        }
+        function restartGame() {
+            score = 0;
+            gameOver = false;
+
+            if (hasStarted) {
+                rabbit.x = 200; // Reset rabbit's x position to 50 if game has started
             }
+            rabbit.y = canvas.height - 50; // Reset rabbit's y position
+            hideRestartButton(); // Hide the restart button
+            currentCarrotIndex = 0; // Reset current carrot index
+            nextCarrotX = canvas.width; // Reset next carrot's X position
+            requestAnimationFrame(gameLoop);
+        }
+
+        function showRestartButton() {
+            const restartButton = document.getElementById('restartButton');
+            restartButton.style.display ='block';
+        }      	
+        function hideRestartButton() {
+        const restartButton = document.getElementById('restartButton');
+            restartButton.style.display = 'none';
         }
 
         function gameLoop() {
@@ -112,7 +193,10 @@
                 ctx.fillStyle = '#fff';
                 ctx.font = '40px Arial';
                 ctx.fillText('Game Over', canvas.width / 2 - 100, canvas.height / 2);
-                ctx.fillText(`Score: ${score}`, canvas.width / 2 - 50, canvas.height / 2 + 50);
+                ctx.fillText(`Score: ${Math.round(score)}m`, canvas.width / 2 - 50, canvas.height / 2 + 50); // Score in Metern anzeigen
+                if (score > highScore) {
+                    ctx.fillText('New Record!', canvas.width / 2 - 100, canvas.height / 2 + 100); // "New Record" anzeigen
+                }
                 return;
             }
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -127,14 +211,20 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Touchscreen-Event hinzufügen
-        canvas.addEventListener('touchstart', () => {
+        canvas.addEventListener('touchstart', () => { // Touchscreen-Event hinzufügen
             if (!hasStarted) {
                 hasStarted = true;
                 gameLoop();
             }
             rabbit.jump();
         });
-    </script>
+
+        const restartButton = document.getElementById('restartButton'); // Restart-Button hinzufügen
+        restartButton.addEventListener('click', () => {
+            if (gameOver) {
+                restartGame();
+            }
+        });
+</script>
 </body>
 </html>
