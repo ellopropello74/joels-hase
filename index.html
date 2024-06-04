@@ -1,8 +1,8 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hase Springt</title>
   <style>
     body {
@@ -11,7 +11,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: url('Frühlingsbild.jpg') no-repeat center center fixed;
+      background: url("Frühlingsbild.jpg") no-repeat center center fixed;
       background-size: cover;
       overflow: hidden;
     }
@@ -32,31 +32,45 @@
       border-radius: 5px;
       display: none;
     }
+    #feedbackLink {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -150%);
+      font-size: 20px;
+      color: rgb(11, 33, 235);
+      text-decoration: underline;
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <img id="rabbitImg" src="hare.png" style="display: none;" />
-  <img id="carrotImg" src="carrot.png" style="display: none;" />
+  <img id="rabbitImg" src="hare.png" style="display: none" />
+  <img id="carrotImg" src="carrot.png" style="display: none" />
   <canvas id="gameCanvas" width="800" height="400"></canvas>
   <button id="restartButton">Restart</button>
   <audio id="backgroundMusic" src="your-music-file.mp3" loop></audio>
   <audio id="jumpSound" src="jump-sound.mp3"></audio>
   <audio id="gameOverSound" src="game-over-sound.mp3"></audio>
+  
+  <!-- Feedback Link -->
+  <a id="feedbackLink" href="https://www.empirio.de/s/4l4miimY4i" target="_blank">Sag uns deine Meinung</a>
+  
   <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
     let hasStarted = false;
     let gameOver = false;
     let score = 0;
-    let highScore = localStorage.getItem('highScore') || 0;
+    let highScore = localStorage.getItem("highScore") || 0;
     let startTime = Date.now();
 
-    const rabbitImg = document.getElementById('rabbitImg');
-    const carrotImg = document.getElementById('carrotImg');
-    const backgroundMusic = document.getElementById('backgroundMusic');
-    const jumpSound = document.getElementById('jumpSound');
-    const gameOverSound = document.getElementById('gameOverSound');
+    const rabbitImg = document.getElementById("rabbitImg");
+    const carrotImg = document.getElementById("carrotImg");
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    const jumpSound = document.getElementById("jumpSound");
+    const gameOverSound = document.getElementById("gameOverSound");
 
     const rabbit = {
       x: 50,
@@ -100,20 +114,18 @@
 
         if (score > highScore) {
           highScore = score;
-          localStorage.setItem('highScore', highScore);
+          localStorage.setItem("highScore", highScore);
         }
-      }
+      },
     };
 
-    function getRandomCarrotPosition(carrotHeight, minY, maxY) {
+    function getRandomCarrotPosition(minY, maxY) {
       return Math.random() * (maxY - minY) + minY;
     }
-
     let nextCarrotX = canvas.width;
-
     const carrot = {
       x: nextCarrotX,
-      y: getRandomCarrotPosition(100, 50, canvas.height - 150),
+      y: getRandomCarrotPosition(canvas.height * 2 / 5, canvas.height - 100),
       width: 100,
       height: 100,
       speed: 5,
@@ -125,10 +137,14 @@
           this.x -= this.speed;
           if (this.x + this.width < 0) {
             this.x = canvas.width;
-            this.y = getRandomCarrotPosition(this.height, - 12, canvas.height - 12);
+            this.y = getRandomCarrotPosition(canvas.height * 2 / 5, canvas.height - 100);
           }
         }
-      }
+      },
+      updatePosition(newX, newY) {
+        this.x = newX;
+        this.y = newY;
+      },
     };
 
     function increaseSpeed() {
@@ -138,19 +154,19 @@
     }
 
     function drawBackground() {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     function drawScore() {
-      ctx.fillStyle = '#fff';
-      ctx.font = '20px Arial';
+      ctx.fillStyle = "#fff";
+      ctx.font = "20px Arial";
       ctx.fillText(`Score: ${Math.round(score)}m`, 20, 40);
       ctx.fillText(`Highscore: ${Math.round(highScore)}m`, canvas.width - 175, 40);
     }
 
     function detectCollision() {
-      const collisionBoxWidth = carrot.width / 2;
+      const collisionBoxWidth = carrot.width / 10;
       const collisionBoxHeight = carrot.height / 2;
       const collisionBoxX = carrot.x + (carrot.width - collisionBoxWidth) / 2;
       const collisionBoxY = carrot.y + (carrot.height - collisionBoxHeight) / 2;
@@ -162,31 +178,41 @@
       ) {
         gameOver = true;
         showRestartButton();
+        showFeedbackLink();
         backgroundMusic.pause();
         gameOverSound.play();
       }
     }
 
     function showRestartButton() {
-      const restartButton = document.getElementById('restartButton');
-      restartButton.style.display = 'block';
+      const restartButton = document.getElementById("restartButton");
+      restartButton.style.display = "block";
       restartButton.onclick = () => location.reload();
     }
 
     function hideRestartButton() {
-      const restartButton = document.getElementById('restartButton');
-      restartButton.style.display = 'none';
+      const restartButton = document.getElementById("restartButton");
+      restartButton.style.display = "none";
+    }
+
+    function showFeedbackLink() {
+      const feedbackLink = document.getElementById("feedbackLink");
+      feedbackLink.style.display = "block";
+      feedbackLink.style.left = `${canvas.width / 2 + 600}px`;
+      feedbackLink.style.top = `${canvas.height / 2 + 350}px`;
+      feedbackLink.style.fontSize = "35px";
     }
 
     function gameLoop() {
       if (gameOver) {
-        ctx.fillStyle = '#fff';
-        ctx.font = '40px Arial';
-        ctx.fillText('Game Over', canvas.width / 2 - 100, canvas.height / 2 - 50);
-        ctx.fillText(`Score: ${Math.round(score)}m`, canvas.width / 2 - 100, canvas.height / 2 );
+        ctx.fillStyle = "#fff";
+        ctx.font = "40px Arial";
+        ctx.fillText("Game Over", canvas.width / 2 - 100, canvas.height / 2 - 50);
+        ctx.fillText(`Score: ${Math.round(score)}m`, canvas.width / 2 - 100, canvas.height / 2);
         if (score > highScore) {
-          ctx.fillText('New Record!', canvas.width / 2 - 100, canvas.height / 2 + 50);
+          ctx.fillText("New Record!", canvas.width / 2 - 100, canvas.height / 2 + 50);
         }
+        showFeedbackLink(); // Display feedback link
         return;
       }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -202,9 +228,8 @@
     }
 
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-      // Touch-Gerät
-      canvas.addEventListener('touchstart', () => {
-        if (!hasStarted) {  
+      canvas.addEventListener("touchstart", () => {
+        if (!hasStarted) {
           hasStarted = true;
           backgroundMusic.play();
           gameLoop();
@@ -212,21 +237,20 @@
         rabbit.jump();
       });
     } else {
-      // Computer
-      window.addEventListener('keydown', (event) => {
-        if (!hasStarted && (event.code === 'Space' || event.code === 'Spacebar')) {
+      window.addEventListener("keydown", (event) => {
+        if (!hasStarted && (event.code === "Space" || event.code === "Spacebar")) {
           hasStarted = true;
           backgroundMusic.play();
           gameLoop();
         }
-        if (event.code === 'Space' || event.code === 'Spacebar') {
+        if (event.code === "Space" || event.code === "Spacebar") {
           rabbit.jump();
         }
       });
     }
 
-    const restartButton = document.getElementById('restartButton');
-    restartButton.addEventListener('click', () => {
+    const restartButton = document.getElementById("restartButton");
+    restartButton.addEventListener("click", () => {
       if (gameOver) {
         restartGame();
       }
@@ -244,13 +268,15 @@
       rabbit.speed = 3;
 
       carrot.x = canvas.width;
-      carrot.y = getRandomCarrotPosition(carrot.height, 50, canvas.height - 150);
+      carrot.y = getRandomCarrotPosition(50, canvas.height - 150);
 
       startTime = Date.now();
 
       hideRestartButton();
+      const feedbackLink = document.getElementById("feedbackLink");
+      feedbackLink.style.display = "none"; // Hide feedback link
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      backgroundMusic.currentTime = 0; // Zurücksetzen der Musikwiedergabe
+      backgroundMusic.currentTime = 0;
       backgroundMusic.play();
       requestAnimationFrame(gameLoop);
     }
