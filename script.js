@@ -122,7 +122,7 @@ function detectCollision() {
   ) {
     gameOver = true;
     showRestartButton();
-    showFeedbackLink();
+    //showFeedbackLink();
     backgroundMusic.pause();
     gameOverSound.play();
   }
@@ -163,8 +163,8 @@ function gameLoop() {
         canvas.height / 2 + 50
       );
     }
-    showFeedbackLink(); // Display feedback link
-    return;
+    //showFeedbackLink(); // Display feedback link
+    //return;
   }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
