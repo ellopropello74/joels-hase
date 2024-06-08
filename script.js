@@ -122,7 +122,7 @@ function detectCollision() {
   ) {
     gameOver = true;
     showRestartButton();
-    //showFeedbackLink();
+    showFeedbackLink();
     backgroundMusic.pause();
     gameOverSound.play();
   }
@@ -139,12 +139,12 @@ function hideRestartButton() {
   restartButton.style.display = "none";
 }
 
-//function showFeedbackLink() {
- //feedbackLink.style.display = "block";
-  //feedbackLink.style.left = `${canvas.width / 2 + 600}px`;
- // feedbackLink.style.top = `${canvas.height / 2 + 350}px`;
-  //feedbackLink.style.fontSize = "35px";
-//}
+function showFeedbackLink() {
+  feedbackLink.style.display = "block";
+  feedbackLink.style.left = `${canvas.width / 2 + 600}px`;
+  feedbackLink.style.top = `${canvas.height / 2 + 350}px`;
+  feedbackLink.style.fontSize = "35px";
+}
 
 function gameLoop() {
   if (gameOver) {
@@ -163,8 +163,8 @@ function gameLoop() {
         canvas.height / 2 + 50
       );
     }
-    //showFeedbackLink(); // Display feedback link
-    //return;
+    showFeedbackLink(); // Display feedback link
+    return;
   }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
