@@ -25,7 +25,7 @@ body {
   border-radius: 5px;
   display: none;
 }
-#feedbackLink {
+/* #feedbackLink {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -34,4 +34,4 @@ body {
   color: rgb(11, 33, 235);
   text-decoration: underline;
   display: none;
-}
+} */
