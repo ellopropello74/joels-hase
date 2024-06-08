@@ -1,0 +1,37 @@
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: url("img/Frühlingsbild.jpg") no-repeat center center fixed;
+  background-size: cover;
+  overflow: hidden;
+}
+#gameCanvas {
+  border: 1px solid #3cff00;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+#restartButton {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #3cff00;
+  border: none;
+  border-radius: 5px;
+  display: none;
+}
+#feedbackLink {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-90%, -375%);
+  font-size: 20px;
+  color: rgb(11, 33, 235);
+  text-decoration: underline;
+  display: none;
+}
