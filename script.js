@@ -139,13 +139,12 @@ function hideRestartButton() {
   restartButton.style.display = "none";
 }
 
-function showFeedbackLink() {
-  const feedbackLink = document.getElementById("feedbackLink");
-  feedbackLink.style.display = "block";
-  feedbackLink.style.left = `${canvas.width / 2 + 600}px`;
-  feedbackLink.style.top = `${canvas.height / 2 + 350}px`;
-  feedbackLink.style.fontSize = "35px";
-}
+//function showFeedbackLink() {
+ //feedbackLink.style.display = "block";
+  //feedbackLink.style.left = `${canvas.width / 2 + 600}px`;
+ // feedbackLink.style.top = `${canvas.height / 2 + 350}px`;
+  //feedbackLink.style.fontSize = "35px";
+//}
 
 function gameLoop() {
   if (gameOver) {
