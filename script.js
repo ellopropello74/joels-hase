@@ -1,6 +1,14 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
 let hasStarted = false;
 let gameOver = false;
 let score = 0;
@@ -15,7 +23,7 @@ const gameOverSound = document.getElementById("gameOverSound");
 
 const rabbit = {
   x: 50,
-  y: canvas.height - 50,
+  y: canvas.height - 100,
   width: 75,
   height: 75,
   dy: 0,
@@ -63,6 +71,7 @@ const rabbit = {
 function getRandomCarrotPosition(minY, maxY) {
   return Math.random() * (maxY - minY) + minY;
 }
+
 let nextCarrotX = canvas.width;
 const carrot = {
   x: nextCarrotX,
@@ -122,7 +131,6 @@ function detectCollision() {
   ) {
     gameOver = true;
     showRestartButton();
-    showFeedbackLink();
     backgroundMusic.pause();
     gameOverSound.play();
   }
@@ -137,13 +145,6 @@ function showRestartButton() {
 function hideRestartButton() {
   const restartButton = document.getElementById("restartButton");
   restartButton.style.display = "none";
-}
-
-function showFeedbackLink() {
-  feedbackLink.style.display = "block";
-  feedbackLink.style.left = `${canvas.width / 2 + 600}px`;
-  feedbackLink.style.top = `${canvas.height / 2 + 350}px`;
-  feedbackLink.style.fontSize = "35px";
 }
 
 function gameLoop() {
@@ -163,7 +164,6 @@ function gameLoop() {
         canvas.height / 2 + 50
       );
     }
-    showFeedbackLink(); // Display feedback link
     return;
   }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -178,6 +178,12 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
+function startGame() {
+  resizeCanvas(); // ensure the canvas is resized before starting the game
+  backgroundMusic.play();
+  gameLoop();
+}
+
 if (
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
@@ -186,8 +192,7 @@ if (
   canvas.addEventListener("touchstart", () => {
     if (!hasStarted) {
       hasStarted = true;
-      backgroundMusic.play();
-      gameLoop();
+      startGame();
     }
     rabbit.jump();
   });
@@ -195,8 +200,7 @@ if (
   window.addEventListener("keydown", (event) => {
     if (!hasStarted && (event.code === "Space" || event.code === "Spacebar")) {
       hasStarted = true;
-      backgroundMusic.play();
-      gameLoop();
+      startGame();
     }
     if (event.code === "Space" || event.code === "Spacebar") {
       rabbit.jump();
@@ -228,8 +232,6 @@ function restartGame() {
   startTime = Date.now();
 
   hideRestartButton();
-  const feedbackLink = document.getElementById("feedbackLink");
-  feedbackLink.style.display = "none"; // Hide feedback link
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   backgroundMusic.currentTime = 0;
   backgroundMusic.play();
