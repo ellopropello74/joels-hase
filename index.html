@@ -7,9 +7,8 @@
     <!-- Google tag (gtag.js) -->
     <script
       Set-Cookie:
-      cookie-name="value;"
-      SameSite="None;"
-      Secure
+      my_var="my_value;"
+      SameSite="Lax"
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-PB300J4JPC"
     ></script>
@@ -22,22 +21,15 @@
       gtag("config", "G-PB300J4JPC");
     </script>
     <link rel="stylesheet" href="styles.css" />
-    <script src="script.js" defer></script>
+    <script defer src="script.js"></script>
   </head>
   <body>
     <img id="rabbitImg" src="img/hare.png" style="display: none" />
     <img id="carrotImg" src="img/carrot.png" style="display: none" />
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <canvas id="gameCanvas"></canvas>
     <button id="restartButton">Restart</button>
     <audio id="backgroundMusic" src="your-music-file.mp3" loop></audio>
     <audio id="jumpSound" src="jump-sound.mp3"></audio>
     <audio id="gameOverSound" src="game-over-sound.mp3"></audio>
-    <!-- Feedback Link -->
-    <a
-      id="feedbackLink"
-      href="https://www.empirio.de/s/4l4miimY4i"
-      target="_blank"
-      > </a
-    >
   </body>
 </html>
